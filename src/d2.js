@@ -16,8 +16,8 @@ function gameIsValid(maxCubesPerColor) {
   );
 }
 
-// -------------- part 1 ---------------
 const validGames = [];
+let sumOfPowers = 0;
 const games = readValuesFromFile();
 
 for (let game in games) {
@@ -40,11 +40,13 @@ for (let game in games) {
     }
   });
 
+  const powerOfMaxes = Object.values(maxCubesPerColor).reduce((a, b) => a * b);
+  sumOfPowers += powerOfMaxes;
+
   if (gameIsValid(maxCubesPerColor)) {
     validGames.push(++game);
   }
 }
 
 const sumOfValidGames = validGames.reduce((acc, curr) => acc + curr);
-console.log("part 1: ", sumOfValidGames);
-// -------------- part 2 ---------------
+console.log(sumOfValidGames, sumOfPowers);
