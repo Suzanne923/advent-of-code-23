@@ -47,25 +47,63 @@ function parseNumber(grid, y, x) {
   return numbers.join("");
 }
 
-let sum = 0;
+function calculatePart1() {
+  let sum = 0;
 
-for (let row in grid) {
-  for (let char in grid[row]) {
-    if (isSymbol(grid[row][char])) {
-      const coordinates = getSurroundingCoordinates(row, char);
-      const numbers = [];
+  for (let row in grid) {
+    for (let char in grid[row]) {
+      if (isSymbol(grid[row][char])) {
+        const coordinates = getSurroundingCoordinates(row, char);
+        const numbers = [];
 
-      coordinates.forEach(({ y, x }) => {
-        const gridValue = grid[y][x];
-        const parsedNumber = parseNumber(grid, y, x);
-        if (isNumber(gridValue) && !numbers.includes(+parsedNumber)) {
-          numbers.push(+parsedNumber);
-        }
-      });
+        coordinates.forEach(({ y, x }) => {
+          const gridValue = grid[y][x];
+          const parsedNumber = parseNumber(grid, y, x);
+          if (isNumber(gridValue) && !numbers.includes(+parsedNumber)) {
+            numbers.push(+parsedNumber);
+          }
+        });
 
-      sum += numbers.reduce((acc, curr) => acc + curr, 0);
+        sum += numbers.reduce((acc, curr) => acc + curr, 0);
+      }
     }
   }
+  return sum;
 }
 
-console.log(sum);
+function calculatePart2() {
+  const symbolsMap = {};
+
+  for (let row in grid) {
+    for (let char in grid[row]) {
+      if (isSymbol(grid[row][char])) {
+        const symbol = grid[row][char];
+        const coordinates = getSurroundingCoordinates(row, char);
+        const partNumbers = [];
+
+        if (!(symbol in symbolsMap)) {
+          symbolsMap[symbol] = 0;
+        }
+
+        coordinates.forEach(({ y, x }) => {
+          const gridValue = grid[y][x];
+          const parsedNumber = parseNumber(grid, y, x);
+          if (isNumber(gridValue) && !partNumbers.includes(parsedNumber)) {
+            partNumbers.push(parsedNumber);
+          }
+        });
+
+        if (symbol === "*" && partNumbers.length === 2) {
+          symbolsMap["*"] += partNumbers[0] * partNumbers[1];
+        }
+      }
+    }
+  }
+
+  return symbolsMap["*"];
+}
+
+const sumPart1 = calculatePart1();
+const sumPart2 = calculatePart2();
+console.log("part 1: ", sumPart1);
+console.log("part 2: ", sumPart2);
