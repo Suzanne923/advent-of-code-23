@@ -39,7 +39,7 @@ function parseNumber(grid, y, x) {
     numbers.unshift(grid[y][backward]);
     backward -= 1;
   }
-  while (isNumber(grid[y][forward]) && +forward < 140) {
+  while (isNumber(grid[y][forward]) && +forward < grid[0].length) {
     numbers.push(grid[y][forward]);
     forward += 1;
   }
@@ -54,17 +54,17 @@ function calculatePart1() {
     for (let char in grid[row]) {
       if (isSymbol(grid[row][char])) {
         const coordinates = getSurroundingCoordinates(row, char);
-        const numbers = [];
+        const partNumbers = [];
 
         coordinates.forEach(({ y, x }) => {
           const gridValue = grid[y][x];
           const parsedNumber = parseNumber(grid, y, x);
-          if (isNumber(gridValue) && !numbers.includes(+parsedNumber)) {
-            numbers.push(+parsedNumber);
+          if (isNumber(gridValue) && !partNumbers.includes(+parsedNumber)) {
+            partNumbers.push(+parsedNumber);
           }
         });
 
-        sum += numbers.reduce((acc, curr) => acc + curr, 0);
+        sum += partNumbers.reduce((acc, curr) => acc + curr, 0);
       }
     }
   }
