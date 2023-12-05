@@ -11,6 +11,7 @@ function readValuesFromFile() {
 }
 
 const grid = readValuesFromFile();
+const SYMBOLS = "/!@#$%^&*()_+-=";
 
 function isNumber(string) {
     return /^\d+$/.test(string);
@@ -56,20 +57,19 @@ function calculatePart1() {
         for (let char in grid[row]) {
             if (isSymbol(grid[row][char])) {
                 const coordinates = getSurroundingCoordinates(row, char);
-                const partNumbers = [];
+                const partNumbers = new Set();
 
                 coordinates.forEach(({ y, x }) => {
                     const gridValue = grid[y][x];
-                    const parsedNumber = parseNumber(grid, y, x);
-                    if (
-                        isNumber(gridValue) &&
-                        !partNumbers.includes(+parsedNumber)
-                    ) {
-                        partNumbers.push(+parsedNumber);
+                    if (isNumber(gridValue)) {
+                        partNumbers.add(+parseNumber(grid, y, x));
                     }
                 });
 
-                sum += partNumbers.reduce((acc, curr) => acc + curr, 0);
+                sum += Array.from(partNumbers).reduce(
+                    (acc, curr) => acc + curr,
+                    0
+                );
             }
         }
     }
@@ -84,7 +84,7 @@ function calculatePart2() {
             if (isSymbol(grid[row][char])) {
                 const symbol = grid[row][char];
                 const coordinates = getSurroundingCoordinates(row, char);
-                const partNumbers = [];
+                const partNumbers = new Set();
 
                 if (!(symbol in symbolsMap)) {
                     symbolsMap[symbol] = 0;
@@ -92,17 +92,16 @@ function calculatePart2() {
 
                 coordinates.forEach(({ y, x }) => {
                     const gridValue = grid[y][x];
-                    const parsedNumber = parseNumber(grid, y, x);
-                    if (
-                        isNumber(gridValue) &&
-                        !partNumbers.includes(parsedNumber)
-                    ) {
-                        partNumbers.push(parsedNumber);
+                    if (isNumber(gridValue)) {
+                        partNumbers.add(parseNumber(grid, y, x));
                     }
                 });
 
-                if (symbol === "*" && partNumbers.length === 2) {
-                    symbolsMap["*"] += partNumbers[0] * partNumbers[1];
+                if (symbol === "*" && partNumbers.size === 2) {
+                    symbolsMap["*"] += Array.from(partNumbers).reduce(
+                        (a, b) => a * b,
+                        1
+                    );
                 }
             }
         }
@@ -117,4 +116,4 @@ const part2Result = calculatePart2();
 console.timeEnd("execution time");
 console.log("part 1:", part1Result); // 525181
 console.log("part 2:", part2Result); // 84289137
-// 12:00.131
+// 50.687ms

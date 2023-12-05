@@ -26,18 +26,20 @@ function calculateDay4() {
 
     let points = 0;
     let copies = new Array(cards.length).fill(1);
-    for (const card in cards) {
+
+    for (let card = 0; card < cards.length; card++) {
         const [winningCards, myCards] = cards[card];
         const wins = getNumOfWinningCards(myCards, winningCards);
-        if (!wins) {
-            continue;
-        } else {
+
+        if (wins) {
             points += Math.pow(2, wins - 1);
+
             for (let win = 1; win <= wins; win++) {
-                copies[+card + win] += copies[+card];
+                copies[card + win] += copies[card];
             }
         }
     }
+
     const sumCopies = copies.reduce((acc, curr) => acc + curr, 0);
     return { points, sumCopies };
 }
