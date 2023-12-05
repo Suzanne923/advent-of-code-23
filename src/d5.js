@@ -12,10 +12,12 @@ const maps = mapValues.map(m => {
     const [mapType, ...ranges] = m.split(/\r?\n/);
     return {
         mapType,
-        ranges: ranges.map(line => {
-            const [destinationStart, sourceStart, range] = line.split(" ").map(Number);
-            return { destinationStart, sourceStart, range };
-        })
+        ranges: ranges
+            .map(line => {
+                const [destinationStart, sourceStart, range] = line.split(" ").map(Number);
+                return { destinationStart, sourceStart, range };
+            })
+            .sort((a, b) => a.sourceStart - b.sourceStart)
     };
 });
 
@@ -33,6 +35,10 @@ function valueIsInRange({ sourceStart, range }, val) {
 
 function convertValue(val) {
     for (const { ranges } of maps) {
+        if (val < ranges[0].sourceStart) {
+            continue;
+        }
+
         for (const { destinationStart, sourceStart, range } of ranges) {
             if (valueIsInRange({ sourceStart, range }, val)) {
                 const diff = val - sourceStart;
@@ -45,7 +51,7 @@ function convertValue(val) {
 }
 
 function calculatePart1() {
-    return seedValues.map(convertValue).sort().shift();
+    return Math.min(...seedValues.map(convertValue));
 }
 
 function calculatePart2() {
@@ -60,5 +66,5 @@ function calculatePart2() {
     return lowestVal;
 }
 
-console.log("part 1: ", calculatePart1());
-console.log("part 2: ", calculatePart2());
+const part1Result = calculatePart1();
+const part2Result = calculatePart2();
