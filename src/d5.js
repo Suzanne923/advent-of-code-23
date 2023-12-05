@@ -39,14 +39,26 @@ function convertValue(val) {
             continue;
         }
 
-        for (const { destinationStart, sourceStart, range } of ranges) {
+        let left = 0;
+        let right = ranges.length - 1;
+
+        while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+            const { destinationStart, sourceStart, range } = ranges[mid];
+
             if (valueIsInRange({ sourceStart, range }, val)) {
                 const diff = val - sourceStart;
-                val = destinationStart + diff;
-                break;
+                return destinationStart + diff;
+            }
+
+            if (val < sourceStart) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
             }
         }
     }
+
     return val;
 }
 
