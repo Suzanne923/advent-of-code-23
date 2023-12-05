@@ -39,31 +39,19 @@ function convertValue(val) {
             continue;
         }
 
-        let left = 0;
-        let right = ranges.length - 1;
-
-        while (left <= right) {
-            const mid = Math.floor((left + right) / 2);
-            const { destinationStart, sourceStart, range } = ranges[mid];
-
+        for (const { destinationStart, sourceStart, range } of ranges) {
             if (valueIsInRange({ sourceStart, range }, val)) {
                 const diff = val - sourceStart;
-                return destinationStart + diff;
-            }
-
-            if (val < sourceStart) {
-                right = mid - 1;
-            } else {
-                left = mid + 1;
+                val = destinationStart + diff;
+                break;
             }
         }
     }
-
     return val;
 }
 
 function calculatePart1() {
-    return Math.min(...seedValues.map(convertValue));
+    return seedValues.map(convertValue).sort().shift();
 }
 
 function calculatePart2() {
@@ -78,5 +66,9 @@ function calculatePart2() {
     return lowestVal;
 }
 
+console.time("execution time");
 const part1Result = calculatePart1();
+console.log("part 1:", part1Result);
 const part2Result = calculatePart2();
+console.timeEnd("execution time: ");
+console.log("part 2:", part2Result); // 12:00.131
