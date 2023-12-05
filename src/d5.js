@@ -9,7 +9,7 @@ function readValuesFromFile() {
 
 const mapValues = readValuesFromFile();
 const seedValues = mapValues.shift().split(": ")[1].split(" ").map(Number);
-const seedRanges = getSeedRanges(seedValues);
+const seedRanges = getSeedRanges();
 const maps = mapValues.map((m) => {
     const [mapType, ...ranges] = m.split(/\r?\n/);
     return {
@@ -25,7 +25,7 @@ const maps = mapValues.map((m) => {
     };
 });
 
-function getSeedRanges(seedValues) {
+function getSeedRanges() {
     const seedRanges = [];
     for (let i = 0; i < seedValues.length; i += 2) {
         seedRanges.push({
@@ -36,7 +36,7 @@ function getSeedRanges(seedValues) {
     return seedRanges;
 }
 
-function valueIsInRange({ sourceStart, range }, val) {
+function valueIsInRange(sourceStart, range, val) {
     return val >= sourceStart && val < sourceStart + range;
 }
 
@@ -47,7 +47,7 @@ function convertValue(val) {
         }
 
         for (const { destinationStart, sourceStart, range } of ranges) {
-            if (valueIsInRange({ sourceStart, range }, val)) {
+            if (valueIsInRange(sourceStart, range, val)) {
                 const diff = val - sourceStart;
                 val = destinationStart + diff;
                 break;
@@ -63,8 +63,7 @@ function calculatePart1() {
 
 function calculatePart2() {
     let lowestVal = Infinity;
-    for (let i in seedRanges) {
-        const { start, end } = seedRanges[i];
+    for (const { start, end } of seedRanges) {
         for (let j = start; j <= end; j++) {
             const location = convertValue(j);
             lowestVal = Math.min(lowestVal, location);
@@ -79,4 +78,4 @@ const part2Result = calculatePart2();
 console.timeEnd("execution time");
 console.log("part 1:", part1Result); // 175622908
 console.log("part 2:", part2Result); // 5200543
-// 12:00.131
+// 12:00.131 (m:ss.mmm)
