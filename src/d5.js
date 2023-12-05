@@ -1,30 +1,37 @@
 const fs = require("fs");
 
 function readValuesFromFile() {
-    const fileBuffer = fs.readFileSync("../inputs/d5.txt", { encoding: "utf-8" });
+    const fileBuffer = fs.readFileSync("../inputs/d5.txt", {
+        encoding: "utf-8",
+    });
     return fileBuffer.trim().split(/\r?\n\r?\n/);
 }
 
 const mapValues = readValuesFromFile();
 const seedValues = mapValues.shift().split(": ")[1].split(" ").map(Number);
 const seedRanges = getSeedRanges(seedValues);
-const maps = mapValues.map(m => {
+const maps = mapValues.map((m) => {
     const [mapType, ...ranges] = m.split(/\r?\n/);
     return {
         mapType,
         ranges: ranges
-            .map(line => {
-                const [destinationStart, sourceStart, range] = line.split(" ").map(Number);
+            .map((line) => {
+                const [destinationStart, sourceStart, range] = line
+                    .split(" ")
+                    .map(Number);
                 return { destinationStart, sourceStart, range };
             })
-            .sort((a, b) => a.sourceStart - b.sourceStart)
+            .sort((a, b) => a.sourceStart - b.sourceStart),
     };
 });
 
 function getSeedRanges(seedValues) {
     const seedRanges = [];
     for (let i = 0; i < seedValues.length; i += 2) {
-        seedRanges.push({ start: seedValues[i], end: seedValues[i] + seedValues[i + 1] });
+        seedRanges.push({
+            start: seedValues[i],
+            end: seedValues[i] + seedValues[i + 1],
+        });
     }
     return seedRanges;
 }
@@ -68,7 +75,8 @@ function calculatePart2() {
 
 console.time("execution time");
 const part1Result = calculatePart1();
-console.log("part 1:", part1Result);
 const part2Result = calculatePart2();
-console.timeEnd("execution time: ");
-console.log("part 2:", part2Result); // 12:00.131
+console.timeEnd("execution time");
+console.log("part 1:", part1Result); // 175622908
+console.log("part 2:", part2Result); // 5200543
+// 12:00.131

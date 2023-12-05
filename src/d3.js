@@ -1,11 +1,13 @@
 const fs = require("fs");
 
 function readValuesFromFile() {
-    const fileBuffer = fs.readFileSync("../inputs/d3.txt", { encoding: "utf-8" });
+    const fileBuffer = fs.readFileSync("../inputs/d3.txt", {
+        encoding: "utf-8",
+    });
     return fileBuffer
         .trim()
         .split("\n")
-        .map(v => v.replace(/\r/, ""));
+        .map((v) => v.replace(/\r/, ""));
 }
 
 const grid = readValuesFromFile();
@@ -25,7 +27,7 @@ function getSurroundingCoordinates(y, x) {
         [0, 1],
         [1, -1],
         [1, 0],
-        [1, 1]
+        [1, 1],
     ];
     return neighbours.map(([dx, dy]) => ({ x: +x + dx, y: +y + dy }));
 }
@@ -59,7 +61,10 @@ function calculatePart1() {
                 coordinates.forEach(({ y, x }) => {
                     const gridValue = grid[y][x];
                     const parsedNumber = parseNumber(grid, y, x);
-                    if (isNumber(gridValue) && !partNumbers.includes(+parsedNumber)) {
+                    if (
+                        isNumber(gridValue) &&
+                        !partNumbers.includes(+parsedNumber)
+                    ) {
                         partNumbers.push(+parsedNumber);
                     }
                 });
@@ -88,7 +93,10 @@ function calculatePart2() {
                 coordinates.forEach(({ y, x }) => {
                     const gridValue = grid[y][x];
                     const parsedNumber = parseNumber(grid, y, x);
-                    if (isNumber(gridValue) && !partNumbers.includes(parsedNumber)) {
+                    if (
+                        isNumber(gridValue) &&
+                        !partNumbers.includes(parsedNumber)
+                    ) {
                         partNumbers.push(parsedNumber);
                     }
                 });
@@ -103,21 +111,10 @@ function calculatePart2() {
     return symbolsMap["*"];
 }
 
-const sumPart1 = calculatePart1();
-const sumPart2 = calculatePart2();
-console.log("part 1: ", sumPart1);
-console.log("part 2: ", sumPart2);
-
-console.log(
-    "mapping " + maps[i].mapType,
-    "value in range!",
-    val,
-    "sourceStart",
-    sourceStart,
-    "range",
-    range,
-    "destinationStart",
-    destinationStart,
-    "result",
-    destinationStart + diff + range
-);
+console.time("execution time");
+const part1Result = calculatePart1();
+const part2Result = calculatePart2();
+console.timeEnd("execution time");
+console.log("part 1:", part1Result); // 525181
+console.log("part 2:", part2Result); // 84289137
+// 12:00.131
