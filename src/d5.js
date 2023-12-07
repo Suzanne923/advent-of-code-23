@@ -57,6 +57,7 @@ function convertValue(val) {
     return val;
 }
 
+
 function calculatePart1() {
     return seedValues.map(convertValue).sort().shift();
 }
