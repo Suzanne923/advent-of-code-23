@@ -4,14 +4,11 @@ const CARD_VALUES = "23456789TJQKA";
 const CARD_VALUES_JOKERS = "J23456789TQKA";
 
 function getCardStrength(card, canUseJokers) {
-    return canUseJokers
-        ? CARD_VALUES_JOKERS.indexOf(card)
-        : CARD_VALUES.indexOf(card);
+    return canUseJokers ? CARD_VALUES_JOKERS.indexOf(card) : CARD_VALUES.indexOf(card);
 }
 
 function calculateScore(handStr, canUseJokers) {
-    const frequencies = [0, 0, 0, 0, 0, 0];
-    const jokers = handStr.split("J").length - 1;
+    const jokers = getJokers(handStr);
     const hasJokers = canUseJokers && jokers > 0;
 
     if (canUseJokers) {
@@ -21,41 +18,39 @@ function calculateScore(handStr, canUseJokers) {
         handStr = handStr.replaceAll(/J+/g, "");
     }
 
-    [...new Set(handStr.split(""))]
-        .map((key) => handStr.split(key).length - 1)
-        .forEach((freq) => (frequencies[freq] += 1));
+    const frequencies = getFrequencyTable(handStr);
 
-    if (frequencies[5] > 0) {
+    if ("5" in frequencies) {
         return 7;
     }
-    if (frequencies[4] > 0) {
+    if ("4" in frequencies) {
         if (hasJokers) {
             return 7;
         }
         return 6;
     }
-    if (frequencies[3] > 0) {
-        if (frequencies[2] > 0) {
+    if ("3" in frequencies) {
+        if ("2" in frequencies) {
             return 5;
         } else if (hasJokers) {
             return jokers === 2 ? 7 : 6;
         }
         return 4;
     }
-    if (frequencies[2] === 2) {
-        if (hasJokers) {
-            return 5;
-        }
-        return 3;
-    }
-    if (frequencies[2] === 1) {
-        if (hasJokers) {
+    if ("2" in frequencies) {
+        if (frequencies["2"].length === 2) {
+            if (hasJokers) {
+                return 5;
+            }
+            return 3;
+        } else if (hasJokers) {
             if (jokers === 3) {
                 return 7;
             }
             return jokers * 2 + 2;
+        } else {
+            return 2;
         }
-        return 2;
     }
     if (hasJokers) {
         if (jokers === 4) {
@@ -66,23 +61,34 @@ function calculateScore(handStr, canUseJokers) {
     return 1;
 }
 
+function getJokers(handStr) {
+    return handStr.split("J").length - 1;
+}
+
+function getFrequencyTable(handStr) {
+    const table = handStr.split("").reduce((acc, key) => ({ ...acc, [key]: handStr.split(key).length - 1 }), {});
+    const frequencies = {};
+    Object.entries(table).forEach(([key, freq]) => {
+        if (frequencies[freq] !== undefined) {
+            frequencies[freq].push(key);
+        } else {
+            frequencies[freq] = [key];
+        }
+    });
+    return frequencies;
+}
+
 function compareHands(a, b, canUseJokers) {
     if (b.score > a.score) return -1;
     if (a.score > b.score) return 1;
 
     let aWins = -1;
     for (const i in a.hand) {
-        if (
-            getCardStrength(a.hand[i], canUseJokers) >
-            getCardStrength(b.hand[i], canUseJokers)
-        ) {
+        if (getCardStrength(a.hand[i], canUseJokers) > getCardStrength(b.hand[i], canUseJokers)) {
             aWins = 1;
             break;
         }
-        if (
-            getCardStrength(b.hand[i], canUseJokers) >
-            getCardStrength(a.hand[i], canUseJokers)
-        ) {
+        if (getCardStrength(b.hand[i], canUseJokers) > getCardStrength(a.hand[i], canUseJokers)) {
             break;
         }
     }
@@ -91,19 +97,19 @@ function compareHands(a, b, canUseJokers) {
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d7.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer.trim().split("\r\n");
 }
 
 function calculatePart1() {
     let hands = readValuesFromFile()
-        .map((h) => h.trim().split(/\s+/))
+        .map(h => h.trim().split(/\s+/))
         .map(([hand, bid]) => {
             return {
                 hand,
                 bid: Number(bid),
-                score: calculateScore(hand, false),
+                score: calculateScore(hand, false)
             };
         });
     const sortedHands = hands.sort((a, b) => compareHands(a, b, false));
@@ -111,12 +117,12 @@ function calculatePart1() {
 }
 function calculatePart2() {
     let hands = readValuesFromFile()
-        .map((h) => h.trim().split(/\s+/))
+        .map(h => h.trim().split(/\s+/))
         .map(([hand, bid]) => {
             return {
                 hand,
                 bid: Number(bid),
-                score: calculateScore(hand, true),
+                score: calculateScore(hand, true)
             };
         });
     const sortedHands = hands.sort((a, b) => compareHands(a, b, true));
