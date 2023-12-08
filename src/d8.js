@@ -9,6 +9,14 @@ function readValuesFromFile() {
 
 const START = "AAA";
 
+function mapInputToPaths(input) {
+    return input.reduce((acc, line) => {
+        const [path, directions] = line.split(" = ");
+        acc[path] = directions.replace(/\(|\)/g, "").split(", ");
+        return acc;
+    }, {});
+}
+
 function findPath(position = START, paths, instructions) {
     let steps = 0;
     let turn;
@@ -22,22 +30,10 @@ function findPath(position = START, paths, instructions) {
     return steps;
 }
 
-function mapInputToPaths(input) {
-    return input
-        .map(line => {
-            const [path, directions] = line.split(" = ");
-            return [path, directions.replace(/\(|\)/g, "").split(", ")];
-        })
-        .reduce((acc, [start, directions]) => {
-            acc[start] = directions;
-            return acc;
-        }, {});
-}
-
-function leastCommonDivisor() {
+function lcd() {
     const gcd = (a, b) => (a ? gcd(b % a, a) : b);
-    const lcm = (a, b) => (a * b) / gcd(a, b);
-    return lcm;
+    const lcd = (a, b) => (a * b) / gcd(a, b);
+    return lcd;
 }
 
 function calculatePart1() {
@@ -52,7 +48,7 @@ function calculatePart2() {
     const [instructions, ,] = input.splice(0, 2);
     const paths = mapInputToPaths(input);
     const startPositions = Object.keys(paths).filter(path => path[2] === "A");
-    return startPositions.map(position => findPath(position, paths, instructions)).reduce(leastCommonDivisor());
+    return startPositions.map(position => findPath(position, paths, instructions)).reduce(lcd(), 1);
 }
 
 console.time("execution time");
