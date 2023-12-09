@@ -4,23 +4,21 @@ function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d9.txt", {
         encoding: "utf-8"
     });
-    return fileBuffer.trim().split("\r\n");
-}
-
-function getDifferences(sequence) {
-    const differences = [];
-    for (let i = 1; i < sequence.length; i++) {
-        differences.push(sequence[i] - sequence[i - 1]);
-    }
-    return differences;
+    return fileBuffer
+        .trim()
+        .split("\r\n")
+        .map(line => line.trim().split(" ").map(Number));
 }
 
 function getSum(sequence) {
-    return sequence.reduce((acc, curr) => acc + curr);
+    return sequence.reduce((acc, curr) => acc + curr, 0);
 }
 
-function getDiffHistory(input, i) {
-    const sequence = input[i].trim().split(" ").map(Number);
+function getDifferences(sequence) {
+    return sequence.slice(1).map((number, i) => number - sequence[i]);
+}
+
+function getDiffHistory(sequence) {
     const diffHistory = [sequence];
     let nextDiff = getDifferences(sequence);
 
@@ -31,35 +29,29 @@ function getDiffHistory(input, i) {
     return diffHistory;
 }
 
+function extrapolate(diffHistory, findPrevious = false) {
+    for (let j = diffHistory.length - 2; j >= 0; j--) {
+        findPrevious ? addPreviousElement(diffHistory, j) : addNextElement(diffHistory, j);
+    }
+    return findPrevious ? diffHistory[0][0] : diffHistory[0].pop();
+}
+
+function addNextElement(diffHistory, i) {
+    diffHistory[i].push(diffHistory[i].pop() + diffHistory[i + 1].pop());
+}
+function addPreviousElement(diffHistory, i) {
+    diffHistory[i].unshift(diffHistory[i].shift() - diffHistory[i + 1].shift());
+}
+
 function calculatePart1() {
     const input = readValuesFromFile();
-    const nextValues = [];
-
-    for (let i = 0; i < input.length; i++) {
-        const diffHistory = getDiffHistory(input, i);
-
-        for (let j = diffHistory.length - 2; j >= 0; j--) {
-            const currSequence = diffHistory[j];
-            diffHistory[j].push(currSequence.pop() + diffHistory[j + 1].pop());
-        }
-        nextValues.push(diffHistory[0].pop());
-    }
+    const nextValues = input.map(sequence => extrapolate(getDiffHistory(sequence)));
     return getSum(nextValues);
 }
 
 function calculatePart2() {
     const input = readValuesFromFile();
-    const previousValues = [];
-
-    for (let i = 0; i < input.length; i++) {
-        const diffHistory = getDiffHistory(input, i);
-
-        for (let j = diffHistory.length - 2; j >= 0; j--) {
-            const currSequence = diffHistory[j];
-            diffHistory[j].unshift(currSequence.shift() - diffHistory[j + 1].shift());
-        }
-        previousValues.push(diffHistory[0][0]);
-    }
+    const previousValues = input.map(sequence => extrapolate(getDiffHistory(sequence), true));
     return getSum(previousValues);
 }
 
