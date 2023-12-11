@@ -12,66 +12,45 @@ function readValuesFromFile() {
 
 let grid = readValuesFromFile();
 
-function expandHorizontally() {
-    const newGrid = [];
-    grid.forEach((row) => {
-        if (row.every((cell) => cell === ".")) {
-            newGrid.push(row);
-            newGrid.push(row);
-        } else {
-            newGrid.push(row);
-        }
-    });
-    grid = newGrid;
-}
-
-function expandVertically() {
-    const newGrid = new Array(grid.length).fill(0).map(() => []);
-
-    for (let i = 0; i < grid[0].length; i++) {
-        let galaxyFound = false;
-
-        for (let j = 0; j < grid.length; j++) {
-            if (grid[j][i] !== ".") {
-                galaxyFound = true;
-                break;
-            }
-        }
-
-        if (!galaxyFound) {
-            for (let j = 0; j < grid.length; j++) {
-                newGrid[j].push(".");
-                newGrid[j].push(".");
-            }
-        } else {
-            for (let j = 0; j < grid.length; j++) {
-                newGrid[j].push(grid[j][i]);
-            }
-        }
-    }
-    grid = newGrid;
-}
-
 function findGalaxies() {
     const galaxies = [];
-    for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[y].length; x++) {
-            if (grid[y][x] === "#") {
+    grid.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            if (cell === "#") {
                 galaxies.push({ y, x });
             }
-        }
-    }
+        });
+    });
     return galaxies;
+}
+
+function hasGalaxiesInRow(gridRow) {
+    return !gridRow.every((cell) => cell === ".");
+}
+
+function hasGalaxiesInColumn(columnIndex) {
+    return grid.some((row) => row[columnIndex] !== ".");
+}
+
+function getGalaxyAfterExpansion({ y, x }, expansionFactor) {
+    const rowsWithoutGalaxies = grid.filter(
+        (row, i) => i < y && !hasGalaxiesInRow(row)
+    ).length;
+    const columnsWithoutGalaxies = grid[0].filter(
+        (_col, i) => i < x && !hasGalaxiesInColumn(i)
+    ).length;
+    const row =
+        rowsWithoutGalaxies * expansionFactor + (y - rowsWithoutGalaxies);
+    const col =
+        columnsWithoutGalaxies * expansionFactor + (x - columnsWithoutGalaxies);
+    return { y: row, x: col };
 }
 
 function findShortestPath(start, end) {
     return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
 }
 
-function calculatePart1() {
-    expandHorizontally();
-    expandVertically();
-    const galaxies = findGalaxies();
+function getSumOfPaths(galaxies) {
     let sum = 0;
 
     for (let i = 0; i < galaxies.length; i++) {
@@ -82,10 +61,26 @@ function calculatePart1() {
     return sum;
 }
 
+function calculatePart1() {
+    const expansionFactor = 2;
+    const galaxies = findGalaxies().map((g) =>
+        getGalaxyAfterExpansion(g, expansionFactor)
+    );
+    return getSumOfPaths(galaxies, expansionFactor);
+}
+
+function calculatePart2() {
+    const expansionFactor = 1000000;
+    const galaxies = findGalaxies().map((g) =>
+        getGalaxyAfterExpansion(g, expansionFactor)
+    );
+    return getSumOfPaths(galaxies, expansionFactor);
+}
+
 console.time("execution time");
 const part1Result = calculatePart1();
-// const part2Result = calculatePart2();
+const part2Result = calculatePart2();
 console.timeEnd("execution time");
 console.log("part 1:", part1Result); // 9608724
-// console.log("part 2:", part2Result); //
-//
+console.log("part 2:", part2Result); // 904633799472
+// 27.187ms
