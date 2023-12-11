@@ -10,17 +10,14 @@ function readValuesFromFile() {
         .map((line) => line.split(""));
 }
 
-const PIPES = {
-    "|": ["N", "S"],
-    "-": ["E", "W"],
-    L: ["N", "E"],
-    J: ["N", "W"],
-    7: ["S", "W"],
-    F: ["S", "E"],
-};
+const PIPES = ["|", "-", "L", "J", "7", "F"];
 const grid = readValuesFromFile();
 const start = getStartCoordinates();
-const visitedCells = [];
+const visitedCells = [start];
+
+function isValidCoordinate({ y, x }) {
+    return y >= 0 && x >= 0 && y < grid.length && x < grid[0].length;
+}
 
 function getSurroundingCoordinates({ y, x }) {
     const neighbours = [
@@ -30,14 +27,8 @@ function getSurroundingCoordinates({ y, x }) {
         [1, 0],
     ];
     return neighbours
-        .map(([dx, dy]) => ({ y: +y + dy, x: +x + dx }))
-        .filter(
-            (n) =>
-                n.y >= 0 &&
-                n.x >= 0 &&
-                n.y < grid.length &&
-                n.x < grid[0].length
-        );
+        .map(([dy, dx]) => ({ y: y + dy, x: x + dx }))
+        .filter(isValidCoordinate);
 }
 
 function getExitCoordinates({ y, x }) {
@@ -60,7 +51,7 @@ function getExitCoordinates({ y, x }) {
             ];
         case "J":
             return [
-                { y: y, x: x - 1 },
+                { y, x: x - 1 },
                 { y: y - 1, x },
             ];
         case "7":
@@ -81,25 +72,16 @@ function getExitCoordinates({ y, x }) {
 function pipesAreConnected(pipeA, pipeB) {
     const exitsPipeA = getExitCoordinates(pipeA);
     const exitsPipeB = getExitCoordinates(pipeB);
-    let aConnects = false;
-    let bConnects = false;
-    for (let i = 0; i < exitsPipeA.length; i++) {
-        if (exitsPipeA[i].x === pipeB.x && exitsPipeA[i].y === pipeB.y) {
-            aConnects = true;
-        }
-    }
-    for (let i = 0; i < exitsPipeB.length; i++) {
-        if (exitsPipeB[i].x === pipeA.x && exitsPipeB[i].y === pipeA.y) {
-            bConnects = true;
-        }
-    }
-    return aConnects && bConnects;
+    return (
+        exitsPipeA.some((exit) => exit.x === pipeB.x && exit.y === pipeB.y) &&
+        exitsPipeB.some((exit) => exit.x === pipeA.x && exit.y === pipeA.y)
+    );
 }
 
 function getConnectingPipe(entry, previousPosition) {
     const surroundingCoordinates = getSurroundingCoordinates(entry);
     const surroundingPipes = surroundingCoordinates.filter((c) =>
-        Object.keys(PIPES).includes(grid[c.y][c.x])
+        PIPES.includes(grid[c.y][c.x])
     );
     const connectingPipes = [];
     for (const pipe of surroundingPipes) {
@@ -125,77 +107,66 @@ function getStartCoordinates() {
     }
 }
 
-function middleIsReached(nextPipes) {
-    return nextPipes.a.y === nextPipes.b.y && nextPipes.a.x === nextPipes.b.x;
+function middleIsReached(nextA, nextB) {
+    return nextA.y === nextB.y && nextA.x === nextB.x;
 }
 
-function calculatePart1() {
-    const connectingPipes = getConnectingPipe(start);
-    visitedCells.push(start);
-    let previousPosition;
-    let currentPositions = { a: start, b: start };
-    let nextPipes = {
-        a: connectingPipes[0],
-        b: connectingPipes[1],
-    };
-    let steps = 0;
-
-    while (!middleIsReached(nextPipes)) {
-        steps++;
-        previousPosition = { a: currentPositions.a, b: currentPositions.b };
-        currentPositions = { a: nextPipes.a, b: nextPipes.b };
-        visitedCells.push(...Object.values(currentPositions));
-        const a = getConnectingPipe(currentPositions.a, previousPosition.a)[0];
-        const b = getConnectingPipe(currentPositions.b, previousPosition.b)[0];
-        nextPipes = { a, b };
-    }
-
-    visitedCells.push(nextPipes.a);
-    return steps + 1;
-}
-
-function fillMap(map) {
+function getEnclosingTiles(map) {
     visitedCells.forEach(({ y, x }) => (map[y][x] = grid[y][x]));
+    let enclosingTiles = 0;
+
     for (let row = 0; row < map.length; row++) {
         let isBetween = false;
-        let betweenCount = 0;
 
         for (let cell = 0; cell < map[row].length; cell++) {
             const cellValue = map[row][cell];
             if (["|", "F", "7", "S"].includes(cellValue)) {
                 isBetween = !isBetween;
-                if (!isBetween) {
-                    betweenCount = 0;
-                }
             }
             if (cellValue === "." && isBetween) {
-                betweenCount++;
-                map[row][cell] = "O";
+                enclosingTiles++;
             }
         }
     }
+    return enclosingTiles;
 }
 
-function getEnclosingTiles(map) {
-    let tiles = 0;
-    for (let row = 0; row < map.length; row++) {
-        for (let cell = 0; cell < map[row].length; cell++) {
-            if (map[row][cell] === "O") {
-                tiles++;
-            } 
-        }
+function updateLoops(loopA, loopB) {
+    loopA.previous = loopA.current;
+    loopB.previous = loopB.current;
+    loopA.current = loopA.next;
+    loopB.current = loopB.next;
+    loopA.next = getConnectingPipe(loopA.current, loopA.previous)[0];
+    loopB.next = getConnectingPipe(loopB.current, loopB.previous)[0];
+}
+
+function calculatePart1() {
+    const connectingPipes = getConnectingPipe(start);
+    const loopA = {
+        current: start,
+        next: connectingPipes[0],
+    };
+    const loopB = {
+        current: start,
+        next: connectingPipes[1],
+    };
+    let steps = 0;
+
+    while (!middleIsReached(loopA.next, loopB.next)) {
+        steps++;
+        updateLoops(loopA, loopB);
+        visitedCells.push(loopA.current, loopB.current);
     }
-    return tiles;
+
+    visitedCells.push(loopA.next);
+    return steps + 1;
 }
 
 function calculatePart2() {
-    let map = Array.apply(null, Array(grid.length)).map(() => {
-        return Array.from(".".repeat(grid[0].length));
-    });
-    fillMap(map);
-    const enclosingTiles = getEnclosingTiles(map);
-    map = map.map((line) => line.join("")).join("\r\n");
-    return enclosingTiles;
+    const map = Array.from({ length: grid.length }, () =>
+        Array(grid[0].length).fill(".")
+    );
+    return getEnclosingTiles(map);
 }
 
 console.time("execution time");
@@ -204,4 +175,4 @@ const part2Result = calculatePart2();
 console.timeEnd("execution time");
 console.log("part 1:", part1Result); // 6738
 console.log("part 2:", part2Result); // 579
-// 57.596ms
+// 39.372ms
