@@ -2,7 +2,7 @@ const fs = require("fs");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d3.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer
         .trim()
@@ -28,7 +28,7 @@ function getSurroundingCoordinates(y, x) {
         [0, 1],
         [1, -1],
         [1, 0],
-        [1, 1],
+        [1, 1]
     ];
     return neighbours.map(([dx, dy]) => ({ x: +x + dx, y: +y + dy }));
 }
@@ -66,10 +66,7 @@ function calculatePart1() {
                     }
                 });
 
-                sum += Array.from(partNumbers).reduce(
-                    (acc, curr) => acc + curr,
-                    0
-                );
+                sum += Array.from(partNumbers).reduce((acc, curr) => acc + curr, 0);
             }
         }
     }
@@ -98,10 +95,7 @@ function calculatePart2() {
                 });
 
                 if (symbol === "*" && partNumbers.size === 2) {
-                    symbolsMap["*"] += Array.from(partNumbers).reduce(
-                        (a, b) => a * b,
-                        1
-                    );
+                    symbolsMap["*"] += Array.from(partNumbers).reduce((a, b) => a * b, 1);
                 }
             }
         }

@@ -104,7 +104,7 @@ function readValuesFromFile() {
 
 function calculatePart1() {
     let hands = readValuesFromFile()
-        .map(h => h.trim().split(/\s+/))
+        .map((h) => h.trim().split(/\s+/))
         .map(([hand, bid]) => {
             return {
                 hand,
@@ -117,7 +117,7 @@ function calculatePart1() {
 }
 function calculatePart2() {
     let hands = readValuesFromFile()
-        .map(h => h.trim().split(/\s+/))
+        .map((h) => h.trim().split(/\s+/))
         .map(([hand, bid]) => {
             return {
                 hand,

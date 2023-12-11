@@ -2,7 +2,7 @@ const fs = require("fs");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d11.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer
         .trim()
@@ -33,16 +33,10 @@ function hasGalaxiesInColumn(columnIndex) {
 }
 
 function getGalaxyAfterExpansion({ y, x }, expansionFactor) {
-    const rowsWithoutGalaxies = grid.filter(
-        (row, i) => i < y && !hasGalaxiesInRow(row)
-    ).length;
-    const columnsWithoutGalaxies = grid[0].filter(
-        (_col, i) => i < x && !hasGalaxiesInColumn(i)
-    ).length;
-    const row =
-        rowsWithoutGalaxies * expansionFactor + (y - rowsWithoutGalaxies);
-    const col =
-        columnsWithoutGalaxies * expansionFactor + (x - columnsWithoutGalaxies);
+    const rowsWithoutGalaxies = grid.filter((row, i) => i < y && !hasGalaxiesInRow(row)).length;
+    const columnsWithoutGalaxies = grid[0].filter((_col, i) => i < x && !hasGalaxiesInColumn(i)).length;
+    const row = rowsWithoutGalaxies * expansionFactor + (y - rowsWithoutGalaxies);
+    const col = columnsWithoutGalaxies * expansionFactor + (x - columnsWithoutGalaxies);
     return { y: row, x: col };
 }
 
@@ -63,17 +57,13 @@ function getSumOfPaths(galaxies) {
 
 function calculatePart1() {
     const expansionFactor = 2;
-    const galaxies = findGalaxies().map((g) =>
-        getGalaxyAfterExpansion(g, expansionFactor)
-    );
+    const galaxies = findGalaxies().map((g) => getGalaxyAfterExpansion(g, expansionFactor));
     return getSumOfPaths(galaxies, expansionFactor);
 }
 
 function calculatePart2() {
     const expansionFactor = 1000000;
-    const galaxies = findGalaxies().map((g) =>
-        getGalaxyAfterExpansion(g, expansionFactor)
-    );
+    const galaxies = findGalaxies().map((g) => getGalaxyAfterExpansion(g, expansionFactor));
     return getSumOfPaths(galaxies, expansionFactor);
 }
 

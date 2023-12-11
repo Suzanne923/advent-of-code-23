@@ -2,7 +2,7 @@ const fs = require("fs");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d10.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer
         .trim()
@@ -24,11 +24,9 @@ function getSurroundingCoordinates({ y, x }) {
         [-1, 0],
         [0, -1],
         [0, 1],
-        [1, 0],
+        [1, 0]
     ];
-    return neighbours
-        .map(([dy, dx]) => ({ y: y + dy, x: x + dx }))
-        .filter(isValidCoordinate);
+    return neighbours.map(([dy, dx]) => ({ y: y + dy, x: x + dx })).filter(isValidCoordinate);
 }
 
 function getExitCoordinates({ y, x }) {
@@ -37,32 +35,32 @@ function getExitCoordinates({ y, x }) {
         case "|":
             return [
                 { y: y + 1, x },
-                { y: y - 1, x },
+                { y: y - 1, x }
             ];
         case "-":
             return [
                 { y, x: x - 1 },
-                { y, x: x + 1 },
+                { y, x: x + 1 }
             ];
         case "L":
             return [
                 { y, x: x + 1 },
-                { y: y - 1, x },
+                { y: y - 1, x }
             ];
         case "J":
             return [
                 { y, x: x - 1 },
-                { y: y - 1, x },
+                { y: y - 1, x }
             ];
         case "7":
             return [
                 { y, x: x - 1 },
-                { y: y + 1, x },
+                { y: y + 1, x }
             ];
         case "F":
             return [
                 { y, x: x + 1 },
-                { y: y + 1, x },
+                { y: y + 1, x }
             ];
         case "S":
             return getSurroundingCoordinates(start);
@@ -72,6 +70,7 @@ function getExitCoordinates({ y, x }) {
 function pipesAreConnected(pipeA, pipeB) {
     const exitsPipeA = getExitCoordinates(pipeA);
     const exitsPipeB = getExitCoordinates(pipeB);
+
     return (
         exitsPipeA.some((exit) => exit.x === pipeB.x && exit.y === pipeB.y) &&
         exitsPipeB.some((exit) => exit.x === pipeA.x && exit.y === pipeA.y)
@@ -80,16 +79,12 @@ function pipesAreConnected(pipeA, pipeB) {
 
 function getConnectingPipe(entry, previousPosition) {
     const surroundingCoordinates = getSurroundingCoordinates(entry);
-    const surroundingPipes = surroundingCoordinates.filter((c) =>
-        PIPES.includes(grid[c.y][c.x])
-    );
+    const surroundingPipes = surroundingCoordinates.filter((c) => PIPES.includes(grid[c.y][c.x]));
     const connectingPipes = [];
     for (const pipe of surroundingPipes) {
         const isConnected = pipesAreConnected(pipe, entry);
         const isPreviousPipe =
-            previousPosition !== undefined &&
-            pipe.y === previousPosition.y &&
-            pipe.x === previousPosition.x;
+            previousPosition !== undefined && pipe.y === previousPosition.y && pipe.x === previousPosition.x;
         if (isConnected && !isPreviousPipe) {
             connectingPipes.push(pipe);
         }
@@ -144,11 +139,11 @@ function calculatePart1() {
     const connectingPipes = getConnectingPipe(start);
     const loopA = {
         current: start,
-        next: connectingPipes[0],
+        next: connectingPipes[0]
     };
     const loopB = {
         current: start,
-        next: connectingPipes[1],
+        next: connectingPipes[1]
     };
     let steps = 0;
 
@@ -163,9 +158,7 @@ function calculatePart1() {
 }
 
 function calculatePart2() {
-    const map = Array.from({ length: grid.length }, () =>
-        Array(grid[0].length).fill(".")
-    );
+    const map = Array.from({ length: grid.length }, () => Array(grid[0].length).fill("."));
     return getEnclosingTiles(map);
 }
 

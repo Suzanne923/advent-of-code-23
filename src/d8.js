@@ -47,8 +47,8 @@ function calculatePart2() {
     const input = readValuesFromFile();
     const [instructions, ,] = input.splice(0, 2);
     const paths = mapInputToPaths(input);
-    const startPositions = Object.keys(paths).filter(path => path[2] === "A");
-    return startPositions.map(position => findPath(position, paths, instructions)).reduce(lcd(), 1);
+    const startPositions = Object.keys(paths).filter((path) => path[2] === "A");
+    return startPositions.map((position) => findPath(position, paths, instructions)).reduce(lcd(), 1);
 }
 
 console.time("execution time");

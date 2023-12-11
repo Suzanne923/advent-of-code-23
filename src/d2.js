@@ -2,7 +2,7 @@ const fs = require("fs");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d2.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer
         .trim()
@@ -11,11 +11,7 @@ function readValuesFromFile() {
 }
 
 function gameIsValid(maxCubesPerColor) {
-    return (
-        maxCubesPerColor.red <= 12 &&
-        maxCubesPerColor.green <= 13 &&
-        maxCubesPerColor.blue <= 14
-    );
+    return maxCubesPerColor.red <= 12 && maxCubesPerColor.green <= 13 && maxCubesPerColor.blue <= 14;
 }
 
 function calculateDay2(filePath) {
@@ -27,7 +23,7 @@ function calculateDay2(filePath) {
         const maxCubesPerColor = {
             red: 0,
             green: 0,
-            blue: 0,
+            blue: 0
         };
 
         const cubes = games[i]
@@ -41,9 +37,7 @@ function calculateDay2(filePath) {
             maxCubesPerColor[color] = Math.max(+amount, currentMaxOfColor);
         });
 
-        const powerOfMaxes = Object.values(maxCubesPerColor).reduce(
-            (a, b) => a * b
-        );
+        const powerOfMaxes = Object.values(maxCubesPerColor).reduce((a, b) => a * b);
         sumOfPowers += powerOfMaxes;
 
         if (gameIsValid(maxCubesPerColor)) {

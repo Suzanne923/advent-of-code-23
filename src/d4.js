@@ -2,7 +2,7 @@ const fs = require("fs");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d4.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer
         .trim()
@@ -11,10 +11,7 @@ function readValuesFromFile() {
 }
 
 function getNumOfWinningCards(myCards, winningCards) {
-    return myCards.reduce(
-        (acc, curr) => (winningCards.includes(curr) ? acc + 1 : acc),
-        0
-    );
+    return myCards.reduce((acc, curr) => (winningCards.includes(curr) ? acc + 1 : acc), 0);
 }
 
 function calculateDay4() {

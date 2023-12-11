@@ -2,7 +2,7 @@ const fs = require("fs");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d5.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer.trim().split(/\r?\n\r?\n/);
 }
@@ -16,12 +16,10 @@ const maps = mapValues.map((m) => {
         mapType,
         ranges: ranges
             .map((line) => {
-                const [destinationStart, sourceStart, range] = line
-                    .split(" ")
-                    .map(Number);
+                const [destinationStart, sourceStart, range] = line.split(" ").map(Number);
                 return { destinationStart, sourceStart, range };
             })
-            .sort((a, b) => a.sourceStart - b.sourceStart),
+            .sort((a, b) => a.sourceStart - b.sourceStart)
     };
 });
 
@@ -30,7 +28,7 @@ function getSeedRanges() {
     for (let i = 0; i < seedValues.length; i += 2) {
         seedRanges.push({
             start: seedValues[i],
-            end: seedValues[i] + seedValues[i + 1],
+            end: seedValues[i] + seedValues[i + 1]
         });
     }
     return seedRanges;
@@ -56,7 +54,6 @@ function convertValue(val) {
     }
     return val;
 }
-
 
 function calculatePart1() {
     return seedValues.map(convertValue).sort().shift();

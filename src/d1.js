@@ -9,28 +9,23 @@ const numbersAsStrings = {
     six: "6",
     seven: "7",
     eight: "8",
-    nine: "9",
+    nine: "9"
 };
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d1.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer.split("\n").map((v) => v.replace(/\r/, ""));
 }
 
 function sumOfFirstAndLastNumbers(numericValues) {
-    return numericValues.reduce(
-        (acc, curr) => acc + Number(curr[0] + curr.slice(-1)),
-        0
-    );
+    return numericValues.reduce((acc, curr) => acc + Number(curr[0] + curr.slice(-1)), 0);
 }
 
 function parseNumbersInString(string) {
     const regex = /(?=(\d|zero|one|two|three|four|five|six|seven|eight|nine))/g;
-    return [...string.matchAll(regex)].map(
-        (m) => numbersAsStrings[m[1]] || m[1]
-    );
+    return [...string.matchAll(regex)].map((m) => numbersAsStrings[m[1]] || m[1]);
 }
 
 function calculateDay1() {

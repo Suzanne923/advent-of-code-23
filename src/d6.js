@@ -2,7 +2,7 @@ const fs = require("fs");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d6.txt", {
-        encoding: "utf-8",
+        encoding: "utf-8"
     });
     return fileBuffer
         .trim()
@@ -28,13 +28,9 @@ function calculateWaysToWin(time, recordDistance) {
 }
 
 function calculatePart1() {
-    const [time, recordDistance] = readValuesFromFile().map((line) =>
-        line.trim().split(/\s+/).slice(1).map(Number)
-    );
+    const [time, recordDistance] = readValuesFromFile().map((line) => line.trim().split(/\s+/).slice(1).map(Number));
 
-    return time
-        .map((t, i) => calculateWaysToWin(time[i], recordDistance[i]))
-        .reduce((a, b) => a * b);
+    return time.map((t, i) => calculateWaysToWin(time[i], recordDistance[i])).reduce((a, b) => a * b);
 }
 
 function calculatePart2() {

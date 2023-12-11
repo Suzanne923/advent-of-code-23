@@ -7,7 +7,7 @@ function readValuesFromFile() {
     return fileBuffer
         .trim()
         .split("\r\n")
-        .map(line => line.trim().split(" ").map(Number));
+        .map((line) => line.trim().split(" ").map(Number));
 }
 
 function getSum(sequence) {
@@ -22,7 +22,7 @@ function getDiffHistory(sequence) {
     const diffHistory = [sequence];
     let nextDiff = getDifferences(sequence);
 
-    while (nextDiff.some(diff => diff !== 0)) {
+    while (nextDiff.some((diff) => diff !== 0)) {
         diffHistory.push(nextDiff);
         nextDiff = getDifferences(nextDiff);
     }
@@ -45,13 +45,13 @@ function addPreviousElement(diffHistory, i) {
 
 function calculatePart1() {
     const input = readValuesFromFile();
-    const nextValues = input.map(sequence => extrapolate(getDiffHistory(sequence)));
+    const nextValues = input.map((sequence) => extrapolate(getDiffHistory(sequence)));
     return getSum(nextValues);
 }
 
 function calculatePart2() {
     const input = readValuesFromFile();
-    const previousValues = input.map(sequence => extrapolate(getDiffHistory(sequence), true));
+    const previousValues = input.map((sequence) => extrapolate(getDiffHistory(sequence), true));
     return getSum(previousValues);
 }
 
