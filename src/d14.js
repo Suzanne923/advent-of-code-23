@@ -30,7 +30,7 @@ function tilt(grid) {
 }
 
 function turn(grid) {
-    return grid[0].map((_, index) => grid.map(row => row[index]).reverse());
+    return grid[0].map((_, index) => grid.map((row) => row[index]).reverse());
 }
 
 function getLoadForRow(grid, i) {
@@ -76,18 +76,10 @@ function calculatePart2() {
         lastKey = createKey(grid);
     }
 
-    const keys = Array.from(cache.keys())
+    const keys = Array.from(cache.keys());
     const stableKeys = keys.splice(keys.indexOf(lastKey));
-    let lastKeyIndex = -1;
-
-    // Continue tracking key index
-    while (cycles <= 1000000000) {
-        cycles++;
-        lastKeyIndex = lastKeyIndex === stableKeys.length - 1 ? 0 : lastKeyIndex + 1;
-    }
-
+    const lastKeyIndex = (1000000000 - cycles) % stableKeys.length;
     return cache.get(stableKeys[lastKeyIndex]);
-
 }
 
 console.time("execution time");
