@@ -77,7 +77,7 @@ function calculatePart2() {
     }
 
     const keys = Array.from(cache.keys());
-    const stableKeys = keys.splice(keys.indexOf(lastKey));
+    const stableKeys = keys.slice(keys.indexOf(lastKey));
     const lastKeyIndex = (1000000000 - cycles) % stableKeys.length;
     return cache.get(stableKeys[lastKeyIndex]);
 }
@@ -88,4 +88,4 @@ const part2Result = calculatePart2();
 console.timeEnd("execution time");
 console.log("part 1:", part1Result); // 108792
 console.log("part 2:", part2Result); // 99118
-// 1.819s
+// 479.675ms
