@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { PriorityQueue } = require("./utils/priority-queue");
 
 function readValuesFromFile() {
     const fileBuffer = fs.readFileSync("../inputs/d17.txt", {
@@ -11,115 +12,135 @@ function readValuesFromFile() {
 }
 
 const grid = readValuesFromFile();
-const vertices = [];
-const adjacencyList = new Map();
-const heatLossMap = new Map();
-const parents = new Map();
-const visited = new Set();
 
-function addVertex(vertexKey) {
-    vertices.push(vertexKey);
-    adjacencyList.set(vertexKey, new Map());
+function getIndex(location) {
+    return location[0] * grid[0].length + location[1];
 }
 
-function addEdge(vertex1Key, vertex2Key, weight) {
-    if (!adjacencyList.has(vertex1Key)) {
-        adjacencyList.set(vertex1Key, new Map([[vertex2Key, weight]]));
-    } else {
-        adjacencyList.get(vertex1Key).set(vertex2Key, weight);
-    }
+function mapNeighborToNode(node, neighbor) {
+    return {
+        index: getIndex(neighbor.position),
+        position: neighbor.position,
+        parent: node,
+        neighbors: getNeighbors(neighbor.position),
+        distance: neighbor.distance + node.distance,
+        direction: neighbor.direction,
+        forwardSteps: node.direction === neighbor.direction ? node.forwardSteps + 1 : 1
+    };
 }
 
-function getKey(location) {
-    return JSON.stringify(location);
+function getValidNeighbors(node, evaluateFunc) {
+    let validNeighbors = getNeighbors(node.position, node.direction);
+    return validNeighbors.map((neighbor) => mapNeighborToNode(node, neighbor)).filter(evaluateFunc);
 }
 
-function getNeighbors(currentVertex, previousVertex) {
-    return new Map([...adjacencyList.get(currentVertex)].filter((k, v) => k !== previousVertex));
-}
-
-function dijkstra(start) {
-    for (let i = 0; i < vertices.length; i++) {
-        if (vertices[i] === getKey(start)) {
-            heatLossMap.set(getKey(start), 0);
+function getNeighbors([y, x], direction) {
+    const neighbors = [];
+    if (direction === "U" || direction === "D") {
+        neighbors.push(
+            { position: [y, x - 1], direction: "L", distance: undefined },
+            { position: [y, x + 1], direction: "R", distance: undefined }
+        );
+        if (direction === "U") {
+            neighbors.push({ position: [y - 1, x], direction: "U", distance: undefined });
         } else {
-            heatLossMap.set(vertices[i], Infinity);
+            neighbors.push({ position: [y + 1, x], direction: "D", distance: undefined });
         }
-        parents.set(vertices[i], null);
-    }
-
-    let currentVertex = vertexWithMinHeatLoss(heatLossMap, visited);
-    let previousVertex;
-
-    while (currentVertex !== null) {
-        const heatLoss = heatLossMap.get(currentVertex);
-        const neighbors = getNeighbors(currentVertex, previousVertex);
-
-        for (const [neighborKey, weight] of Array.from(neighbors.entries())) {
-            const newHeatLoss = heatLoss + weight;
-
-            if (heatLossMap.get(neighborKey) > newHeatLoss) {
-                heatLossMap.set(neighborKey, newHeatLoss);
-                parents.set(neighborKey, currentVertex);
-            }
+    } else {
+        neighbors.push(
+            { position: [y - 1, x], direction: "U", distance: undefined },
+            { position: [y + 1, x], direction: "D", distance: undefined }
+        );
+        if (direction === "L") {
+            neighbors.push({ position: [y, x - 1], direction: "L", distance: undefined });
+        } else {
+            neighbors.push({ position: [y, x + 1], direction: "R", distance: undefined });
         }
-        visited.add(currentVertex);
-        previousVertex = currentVertex;
-        currentVertex = vertexWithMinHeatLoss(heatLossMap, visited);
     }
-
-    return Array.from(heatLossMap.values()).pop();
+    return neighbors
+        .filter(
+            (nb) =>
+                nb.position[0] >= 0 &&
+                nb.position[0] < grid.length &&
+                nb.position[1] >= 0 &&
+                nb.position[1] < grid[0].length
+        )
+        .map((nb) => {
+            nb.distance = grid[nb.position[0]][nb.position[1]];
+            return nb;
+        });
 }
 
-function vertexWithMinHeatLoss(heatLossMap, visited) {
-    let minHeatLoss = Infinity;
-    let minVertex = null;
-
-    for (const vertex of Array.from(heatLossMap.keys())) {
-        const heatLoss = heatLossMap.get(vertex);
-        if (heatLoss < minHeatLoss && !visited.has(vertex)) {
-            minHeatLoss = heatLoss;
-            minVertex = vertex;
-        }
-    }
-    return minVertex;
+function pushNodes(queue, start, startDirection) {
+    const node = {
+        index: getIndex(start),
+        position: start,
+        parent: null,
+        direction: startDirection,
+        forwardSteps: 1,
+        distance: 0
+    };
+    queue.push(node);
 }
 
-function addVertexesAndEdges() {
-    for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[0].length; x++) {
-            const vertexKey = getKey({ y, x });
-            addVertex(vertexKey);
-            // add all neighbors as edges
-            if (y > 0) {
-                addEdge(vertexKey, getKey({ y: y - 1, x }), grid[y - 1][x]);
-            }
-            if (x > 0) {
-                addEdge(vertexKey, getKey({ y, x: x - 1 }), grid[y][x - 1]);
-            }
-            if (y < grid.length - 1) {
-                addEdge(vertexKey, getKey({ y: y + 1, x }), grid[y + 1][x]);
-            }
-            if (x < grid[0].length - 1) {
-                addEdge(vertexKey, getKey({ y, x: x + 1 }), grid[y][x + 1]);
+function compareNodes(a, b) {
+    return a.distance < b.distance;
+}
+
+function dijkstra(start, finish, evaluateFunc, startDirection) {
+    const nodes = new PriorityQueue(compareNodes);
+    const visited = new Map();
+
+    pushNodes(nodes, start, startDirection);
+
+    let best = null;
+    while (!nodes.isEmpty()) {
+        const node = nodes.pop();
+        if (node.position[0] === finish[0] && node.position[1] === finish[1]) {
+            best = node;
+            break;
+        }
+
+        const visitedNode = visited.get(`${node.index}|${node.direction}|${node.forwardSteps}`);
+        if (visitedNode != null) {
+            if (node.distance >= visitedNode) {
+                continue;
             }
         }
+        visited.set(`${node.index}|${node.direction}|${node.forwardSteps}`, node.distance);
+        const validNeighborNodes = getValidNeighbors(node, evaluateFunc);
+        nodes.push(...validNeighborNodes);
     }
+
+    return best.distance;
 }
 
 function calculatePart1() {
-    addVertexesAndEdges();
-
-    const start = { y: 0, x: 0 };
-    return dijkstra(start);
+    const start = [0, 0];
+    const finish = [grid.length - 1, grid[0].length - 1];
+    const evaluateFunc = (nb) => nb.forwardSteps <= 3;
+    return dijkstra(start, finish, evaluateFunc, "D");
 }
 
-function calculatePart2() {}
+function calculatePart2() {
+    const start = [0, 0];
+    const finish = [grid.length - 1, grid[0].length - 1];
+    const evaluateFunc = (nb) => {
+        if (nb.forwardSteps > 10) {
+            return false
+        }
+        if (nb.parent.forwardSteps < 4 && nb.forwardSteps === 1) {
+            return false
+        }
+        return true
+    }
+    return dijkstra(start, finish, evaluateFunc, "R");
+}
 
 console.time("execution time");
 const part1Result = calculatePart1();
-// const part2Result = calculatePart2();
+const part2Result = calculatePart2();
 console.timeEnd("execution time");
-console.log("part 1:", part1Result); //
-// console.log("part 2:", part2Result); //
-//
+console.log("part 1:", part1Result); // 1008
+console.log("part 2:", part2Result); // 1210
+// 3.897s
