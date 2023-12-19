@@ -16,7 +16,7 @@ const grid = readValuesFromFile();
 function getIndex(location) {
     return location[0] * grid[0].length + location[1];
 }
-
+https://topaz.github.io/paste/#XQAAAQCWBQAAAAAAAAAxm8oZxjYXows3V67OFtTdE1VwEU5RyYkj8fo5LZ/gL+X1TZ0DM206iRI///KwCU06lqylGVZ3D0LUfCmIOVzchKlXmsluBIewR4PvSQYFjZ/eoKRORqNh15v53TAbicFxySIuifBwr+lj8Qkvoe5BpRklwy5ezTs9DLiHG13nZNMosFkjyiVyaYzeSz+Y26WzoAA0mlmHF1nFali83Ps542M2EXwsaRnPkuuQBikmnos/wJXUhrcIZGLXDTiSJbb9aXOZ5MYS0k1LbPDBOyPU2MeVUa2QUd9m9BpgzdcX0Lab53h5f0KjnSJMA+0ygy5FG1gY8uXIxXfSEEk9kHc0Rs1P8yH7OwZsIXyZ/Av0yth1QpfiEJQ5DYAFMT5Hkhmy0VfdaDVXvOTXxK92rxaKrRWISipMlvNr5uIIRRBvmA6XTI61mpQ8jvKC5GsfDJ3bCs3HLUDfz7jYrdQgEsBihaI7K7oEppHdrGFrXqG7un+9HRGpgEy39Q7m3gXEYrHhKxs58fw1g8c2GwXKlDapwODSLI28k5tjF9UB9dM8caJfmduEgcMfdcDdQ5FAQlo/0q/KGJEvdDAlC3SEPK5FhzRH1oDF77O7MvefSxWYt9Pv/Jhe5A5niqRPTbRJ0zoq2IUrrt/9OsAuuMB/7ALKM05P4bRf+BIgtMGykwPPbxNC7o1XuqDYttmyBYmbr3erZbpBoTX471Df1V3VPGGRuBH7wMQEpNwPIszU+/n0dUNswqzVtGjs3/U2+aMtQVd6NhIVH9L99IWz+sXkI3B5KOpItG9z/5/3InQ=
 function mapNeighborToNode(node, neighbor) {
     return {
         index: getIndex(neighbor.position),
